@@ -1,0 +1,15 @@
+﻿{
+  "ConnectionString": "Server=???;Database=???;User Id=???;Password=???",
+  "WorkerThreads": 6,
+  "MaxIterations": 0,
+  "MaxDurationInSeconds": 0,
+  "FailedQueriesLog": "failed-queries.json",
+  "Startup": { "Text": "/* CREATE EXTERNAL DATA SOURCE */" },
+  "QueryList": [
+    "SELECT top 5 * from sys.objects",
+    "SELECT top 10 * from sys.indexes",
+    "SELECT top 15 * from sys.columns",
+    "SELECT top 1 * from sys.all_objects"
+  ],
+  "Cleanup": { "Text": "/* DROP EXTERNAL DATA SOURCE */" }
+}

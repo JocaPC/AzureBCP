@@ -1,0 +1,17 @@
+
+src/.vs/*
+
+src/.vs/*.*
+
+*.user
+src/AzureBCP/bin/*/*.*
+src/AzureBCP/obj/*/*.*
+src/packages/*/*.*
+src/packages/*
+src/*.dll
+src/QueryExecutionEngine/bin/*/*.*
+src/QueryExecutionEngine/obj/*/*.*
+src/SqlQueryRunner/bin/*/*.*
+src/SqlQueryRunner/obj/*/*.*
+
+dist/azbcp/*.*
