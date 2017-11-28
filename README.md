@@ -1,6 +1,7 @@
 # AZure Bulk CoPy Utility
 [AZure Bulk CoPy Utility](https://github.com/JocaPC/AzureBCP/tree/master/dist/) is a command-line tool that enables you to load a set of files from Azure Blob Storage into Azure SQL Database or SQL Server 2017.
-It uses Server-side load with BULK INSERT T-SQL command to load the files (i.e. content of files is not downloaded to the compter where you are running the tool - SQL Database directly reads data from Azure Blob Storage). You can customize bulk insert process using the command line options similar to the well known
+It uses Server-side load with [BULK INSERT T-SQL command](https://docs.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql) to load the files. Content of files is not downloaded to the computer where
+you are running the tool - SQL Database directly reads data from Azure Blob Storage). You can customize bulk insert process using the command line options similar to the well known
  [BCP](https://docs.microsoft.com/en-us/sql/tools/bcp-utility) command-line utility.
  
 The syntax of the command line is:
@@ -10,7 +11,7 @@ azbcp <destination table> [IN] <source file pattern> <options>...
 First parameter of azbcp command is a destination table where data will be loaded, followed by optional **IN** token. Then you need to specify source file name that can contain * wildcard, 
 and optional one or many options.
 
-> Note: **IN** keyword is optional and keept for backward-compatibility with standard bcp utility.
+> Note: **IN** keyword is optional and kept for backward-compatibility with standard bcp utility.
 > AzureBCP do not supports OUT option, so IN don't need to be added in command line.
  
 An example of usage is:
@@ -24,6 +25,7 @@ This command will load the data into Sales.SalesOrders table from the files that
  - ACCOUNT - name of the Azure Blob Storage account where the source files are placed.
  - CONTAINER - container in Azure Blob Storage account where the source files are placed.
  - SAS - SAS Token that will be used to read files from the blob storage.
+ - DATASOURCE - EXTERNAL DATA SOURCE defined in target SQL Database that will. If it is not specified, **AzBCP** will dynamically create a data source using -ACCOUNT, -CONTAINER and -SAS parameters, and drop it when the load finishes.
  - WORKERTHREADS - Number of parallel workers threads that will load the data from the files in Azure Blob Storage.
  - CSV - source files are CSV files formatted based on [RFC4180](https://tools.ietf.org/html/rfc4180) specification.
 
@@ -37,15 +39,11 @@ An example of a configuration file is shown in the following sample:
 {
   "ConnectionString": "Server=<SERVERNAME>.database.windows.net;Database=<DATABASENAME>;User Id=<USERID>;Password=<PASSWORD>;Encrypt=True;",
   "WorkerThreads": 50,
-  "Startup": "",
-  "Cleanup": "",
   "AccountName": "STORAGE_ACCOUNT_NAME",
   "Container": "CONTAINER_NAME",
   "SAS": "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00lM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
 }
 ```
-
-You can put T-SQL queries that should be executed before and after execution of import  in **Startup** and **Cleanup** properties.
 
 # Examples
 If you have placed connection information in the configuration file, you can load the files from Azure Blob Storage using the following command line: 
@@ -81,7 +79,7 @@ There is no installer - just extract the files and load the data.
 
 # Build the code
 
-You can download the code from this gitHub reporsitory and build it locally. You will need Visual Studio 2017 and .Net Framework.
+You can download the code from this gitHub repository and build it locally. You will need Visual Studio 2017 and .Net Framework.
 Note that default post-build action will archive executable files into **.zip**, **.tar.gz**, and **.7z** archives, and put them in the [dist](dist) folder.
 
 ```

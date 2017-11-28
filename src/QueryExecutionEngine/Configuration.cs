@@ -36,6 +36,7 @@ namespace QueryExecutionEngine
         public string BlobStorageAccountName;
         public string BlobStorageContainer;
         public string BlobStorageSasToken;
+        public string BlobStorageDataSource;
 
         public static Configuration LoadFromFile(string file)
         {

@@ -37,6 +37,7 @@ namespace AzureBCP
         private static Dictionary<string, string> BulkInsertOptions = new Dictionary<string, string>();
         private static string directory;
         private static string file;
+        private static string StorageDataSource = null;
         private static string Account;
         private static string Container;
         private static string Sas;
@@ -196,6 +197,10 @@ namespace AzureBCP
                         Sas = args[++i];
                         config.BlobStorageSasToken = Sas;
                         break;
+                    case "-DataSource":
+                    case "-DATASOURCE":
+                        StorageDataSource = args[++i];
+                        break;
                     // Bulk Import Options
                     case "-b":
                     case "-batchsize":
@@ -344,6 +349,7 @@ namespace AzureBCP
             Account = Account ?? config.BlobStorageAccountName;
             Container = Container ?? config.BlobStorageContainer;
             Sas = Sas ?? config.BlobStorageSasToken;
+            StorageDataSource = StorageDataSource ?? config.BlobStorageDataSource;
 
             return config;
         }
@@ -358,6 +364,19 @@ namespace AzureBCP
 
         private static void GenerateBulkInsertCommandList(Configuration config, string sasToken, string accountName, string container, string directory, string pattern)
         {
+            if (string.IsNullOrWhiteSpace(accountName))
+            {
+                Exit("Please specify Azure Blob Storage Account name in -ACCOUNT option or StorageAccountName property in Config.json file.");
+            }
+            if (string.IsNullOrWhiteSpace(sasToken))
+            {
+                Exit("Please specify Azure Blob Storage Shared Account Signature name in -KEY option or BlobStorageSasToken property in Config.json file.");
+            }
+            if (string.IsNullOrWhiteSpace(container))
+            {
+                Exit("Please specify Azure Blob Storage container name in -CONTAINER command-line option or BlobStorageContainer property in Config.json file.");
+            }
+
             if (accountName.EndsWith(".blob.core.windows.net"))
             {
                 accountName = accountName.Replace(".blob.core.windows.net", "");
@@ -374,10 +393,13 @@ namespace AzureBCP
             {
                 sasToken = sasToken.Substring(1);
             }
+            
             string credentialName = "BULK-LOAD-" + accountName + "-" + DateTime.Now.ToShortDateString();
-            config.Startup = new Query()
-            {
-                Text = $@"
+            if(StorageDataSource == null){
+
+                config.Startup = new Query()
+                {
+                    Text = $@"
 BEGIN TRY
 DROP EXTERNAL DATA SOURCE [{credentialName}] 
 DROP DATABASE SCOPED CREDENTIAL [{credentialName}]
@@ -394,11 +416,11 @@ CREATE EXTERNAL DATA SOURCE [{credentialName}]
     WITH (	TYPE = BLOB_STORAGE, 
 		    LOCATION = 'https://{accountName}.blob.core.windows.net', 
 		    CREDENTIAL=  [{credentialName}]);"
-            };
+                };
 
-            config.Clenup = new Query()
-            {
-                Text = $@"
+                config.Clenup = new Query()
+                {
+                    Text = $@"
 BEGIN TRY
     DROP EXTERNAL DATA SOURCE[{ credentialName }] 
     DROP DATABASE SCOPED CREDENTIAL[{ credentialName }]
@@ -406,7 +428,11 @@ END TRY
 BEGIN CATCH
     print @@ERROR
 END CATCH"
-            };
+                };
+            } else
+            {
+                credentialName = StorageDataSource;
+            }
             var sc = new StorageCredentials(sasToken);
             CloudStorageAccount storageAccount = new CloudStorageAccount(sc, accountName, "core.windows.net", true);
 
