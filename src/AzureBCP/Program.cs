@@ -97,6 +97,7 @@ namespace AzureBCP
         private static Configuration InitConfig(string[] args)
         {
             Configuration config = null;
+            bool wideDataType = false;
             if (File.Exists(System.Configuration.ConfigurationManager.AppSettings["ConfigurationFile"]))
             {
                 config = Configuration.LoadFromFile(System.Configuration.ConfigurationManager.AppSettings["ConfigurationFile"]);
@@ -242,6 +243,25 @@ namespace AzureBCP
                     case "-CHAR":
                         BulkInsertOptions["DATAFILETYPE"] = "char";
                         break;
+                    case "-n":
+                    case "-native":
+                    case "-Native":
+                    case "-NATIVE":
+                        BulkInsertOptions["DATAFILETYPE"] = "native";
+                        break;
+                    case "-w":
+                        wideDataType = true;
+                        break;
+                    case "-widenative":
+                    case "-WideNative":
+                    case "-WIDENATIVE":
+                        BulkInsertOptions["DATAFILETYPE"] = "widenative";
+                        break;
+                    case "-widechar":
+                    case "-WideChar":
+                    case "-WIDECHAR":
+                        BulkInsertOptions["DATAFILETYPE"] = "widechar";
+                        break;
                     case "-e":
                     case "-errorfile":
                     case "-ErrorFile":
@@ -296,6 +316,14 @@ namespace AzureBCP
                         break;
                     default:
                         break;
+                }
+            }
+
+            if (wideDataType)
+            {
+                if(BulkInsertOptions["DATAFILETYPE"] == "native" || BulkInsertOptions["DATAFILETYPE"] == "char")
+                {
+                    BulkInsertOptions["DATAFILETYPE"] = "wide" + BulkInsertOptions["DATAFILETYPE"];
                 }
             }
 
