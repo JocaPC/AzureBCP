@@ -39,9 +39,9 @@ An example of a configuration file is shown in the following sample:
 {
   "ConnectionString": "Server=<SERVERNAME>.database.windows.net;Database=<DATABASENAME>;User Id=<USERID>;Password=<PASSWORD>;Encrypt=True;",
   "WorkerThreads": 50,
-  "AccountName": "STORAGE_ACCOUNT_NAME",
+  "Account": "STORAGE_ACCOUNT_NAME",
   "Container": "CONTAINER_NAME",
-  "SAS": "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00lM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
+  "Sas": "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00lM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
 }
 ```
 

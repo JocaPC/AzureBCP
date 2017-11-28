@@ -185,17 +185,17 @@ namespace AzureBCP
                     case "-Account":
                     case "-ACCOUNT":
                         Account = args[++i];
-                        config.BlobStorageAccountName = Account;
+                        config.Account = Account;
                         break;
                     case "-Container":
                     case "-CONTAINER":
                         Container = args[++i];
-                        config.BlobStorageContainer = Container;
+                        config.Container = Container;
                         break;
                     case "-Sas":
                     case "-SAS":
                         Sas = args[++i];
-                        config.BlobStorageSasToken = Sas;
+                        config.Sas = Sas;
                         break;
                     case "-DataSource":
                     case "-DATASOURCE":
@@ -346,10 +346,10 @@ namespace AzureBCP
                 config.ConnectionString = b.ConnectionString;
             }
             
-            Account = Account ?? config.BlobStorageAccountName;
-            Container = Container ?? config.BlobStorageContainer;
-            Sas = Sas ?? config.BlobStorageSasToken;
-            StorageDataSource = StorageDataSource ?? config.BlobStorageDataSource;
+            Account = Account ?? config.Account;
+            Container = Container ?? config.Container;
+            Sas = Sas ?? config.Sas;
+            StorageDataSource = StorageDataSource ?? config.DataSource;
 
             return config;
         }
@@ -366,15 +366,15 @@ namespace AzureBCP
         {
             if (string.IsNullOrWhiteSpace(accountName))
             {
-                Exit("Please specify Azure Blob Storage Account name in -ACCOUNT option or StorageAccountName property in Config.json file.");
+                Exit("Please specify Azure Blob Storage Account name in -ACCOUNT command-line option or Account property in Config.json file.");
             }
             if (string.IsNullOrWhiteSpace(sasToken))
             {
-                Exit("Please specify Azure Blob Storage Shared Account Signature name in -KEY option or BlobStorageSasToken property in Config.json file.");
+                Exit("Please specify Azure Blob Storage Shared Account Signature name in -SAS command-line option or Sas property in Config.json file.");
             }
             if (string.IsNullOrWhiteSpace(container))
             {
-                Exit("Please specify Azure Blob Storage container name in -CONTAINER command-line option or BlobStorageContainer property in Config.json file.");
+                Exit("Please specify Azure Blob Storage container name in -CONTAINER command-line option or Container property in Config.json file.");
             }
 
             if (accountName.EndsWith(".blob.core.windows.net"))

@@ -33,10 +33,10 @@ namespace QueryExecutionEngine
         public string[] QueryList;
         public string FailedQueriesLog;
 
-        public string BlobStorageAccountName;
-        public string BlobStorageContainer;
-        public string BlobStorageSasToken;
-        public string BlobStorageDataSource;
+        public string Account;
+        public string Container;
+        public string Sas;
+        public string DataSource;
 
         public static Configuration LoadFromFile(string file)
         {
