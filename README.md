@@ -45,8 +45,7 @@ An example of a configuration file is shown in the following sample:
 }
 ```
 
-You can put T-SQL queries that should be executed before and after execution of import  in **Startup** and **Cleanup** properties. In the **FailedQueriesLog**, you can put the path
-to the file where will be added the queries that failed to load files. You can review the failed queries and re-run them manually.
+You can put T-SQL queries that should be executed before and after execution of import  in **Startup** and **Cleanup** properties.
 
 # Examples
 If you have placed connection information in the configuration file, you can load the files from Azure Blob Storage using the following command line: 
