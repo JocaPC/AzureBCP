@@ -35,7 +35,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>AzureBCP.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAzure.Storage, Version=8.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -57,7 +58,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="AzureBCP.licenseheader" />
-    <None Include="AzureBCP.snk" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

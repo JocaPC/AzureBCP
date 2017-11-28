@@ -218,6 +218,11 @@ namespace AzureBCP
                     case "-FIELDQUOTE":
                         BulkInsertOptions["FIELDQUOTE"] = args[++i];
                         break;
+                    case "-f":
+                    case "-FormatFile":
+                    case "-FORMATFILE":
+                        BulkInsertOptions["FORMATFILE"] = args[++i];
+                        break;
                     case "-C":
                     case "-CodePage":
                     case "-CODEPAGE":
@@ -403,6 +408,10 @@ END CATCH"
                     if (option.Key == "ERRORFILE")
                     {
                         command += $"ERRORFILE_DATA_SOURCE='{externalDataSourceName}',";
+                    }
+                    if (option.Key == "FORMATFILE")
+                    {
+                        command += $"FORMATFILE_DATA_SOURCE='{externalDataSourceName}',";
                     }
                 }
                 command = command.TrimEnd(',');
