@@ -277,6 +277,8 @@ namespace AzureBCP
                             }
                         }
                         break;
+                    case "-WorkerThreads":
+                    case "-WORKERTHREADS":
                     case "-DOP":
                         config.WorkerThreads = Convert.ToInt16(args[++i]);
                         break;

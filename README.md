@@ -6,7 +6,7 @@ It uses Server-side load with BULK INSERT T-SQL command to load the files (i.e. 
  An example of usage is:
 
 ```
-azbcp Sales.SalesOrders IN *.csv -s dest.database.windows.net -d WideWorldImporters -u bulkuser -p bulkpassword -ENCRYPT -DOP 50 -ACCOUNT sourceaccount -CONTAINER srccontainer -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00Z&sig=rRJ%2BUbAWYIB2EllDZWhlM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
+azbcp Sales.SalesOrders IN *.csv -s dest.database.windows.net -d WideWorldImporters -u bulkuser -p bulkpassword -ENCRYPT -WORKERTHREADS 50 -ACCOUNT sourceaccount -CONTAINER srccontainer -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00Z&sig=rRJ%2BUbAWYIB2EllDZWhlM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
 ```
 
 This command will load the data into Sales.SalesOrders table from the files that match pattern *.csv. There are some additional parameters that you can use in **azbcp** that don't exist in standard bcp utility:
@@ -14,8 +14,7 @@ This command will load the data into Sales.SalesOrders table from the files that
  - ACCOUNT - name of the Azure Blob Storage account where the source files are placed.
  - CONTAINER - container in Azure Blob Storage account where the source files are placed.
  - SAS - SAS Token that will be used to read files from the blob storage.
- - DOP - Number of parallel workers that will load the data from the files in Azure Blob Storage.
- - QUERIESLOG - The name of the file where will be stored all T-SQL queries that failed to load data.
+ - WORKERTHREADS - Number of parallel workers threads that will load the data from the files in Azure Blob Storage.
  - CSV - source files are CSV files formatted based on [RFC4180](https://tools.ietf.org/html/rfc4180) specification.
 
 You can put the Sql connection and storage account information as command-line parameters, or you can prepare configuration parameters is **Config.json** file.
@@ -30,7 +29,6 @@ An example of a configuration file is shown in the following sample:
   "WorkerThreads": 50,
   "Startup": "",
   "Cleanup": "",
-  "FailedQueriesLog": "failed-queries.json",
   "AccountName": "STORAGE_ACCOUNT_NAME",
   "Container": "CONTAINER_NAME",
   "SAS": "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00lM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
