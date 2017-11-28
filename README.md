@@ -9,7 +9,7 @@ It uses Server-side load with BULK INSERT T-SQL command to load the files (i.e. 
 azbcp Sales.SalesOrders IN *.csv -s dest.database.windows.net -d WideWorldImporters -u bulkuser -p bulkpassword -ENCRYPT -DOP 50 -ACCOUNT sourceaccount -CONTAINER srccontainer -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00Z&sig=rRJ%2BUbAWYIB2EllDZWhlM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
 ```
 
-This command will load the data into Sales.SalesOrders table from the files that match pattern *.json. There are some additional parameters that you can use in **azbcp** that don't exist in standard bcp utility:
+This command will load the data into Sales.SalesOrders table from the files that match pattern *.csv. There are some additional parameters that you can use in **azbcp** that don't exist in standard bcp utility:
  - ENCRYPT - Sql connection should be encrypted.
  - ACCOUNT - name of the Azure Blob Storage account where the source files are placed.
  - CONTAINER - container in Azure Blob Storage account where the source files are placed.
@@ -29,7 +29,7 @@ An example of a configuration file is shown in the following sample:
   "ConnectionString": "Server=<SERVERNAME>.database.windows.net;Database=<DATABASENAME>;User Id=<USERID>;Password=<PASSWORD>;Encrypt=True;",
   "WorkerThreads": 50,
   "Startup": "",
-  "Clenup": "",
+  "Cleanup": "",
   "FailedQueriesLog": "failed-queries.json",
   "AccountName": "STORAGE_ACCOUNT_NAME",
   "Container": "CONTAINER_NAME",
