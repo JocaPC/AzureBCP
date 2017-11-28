@@ -3,7 +3,17 @@
 It uses Server-side load with BULK INSERT T-SQL command to load the files (i.e. content of files is not downloaded to the compter where you are running the tool - SQL Database directly reads data from Azure Blob Storage). You can customize bulk insert process using the command line options similar to the well known
  [BCP](https://docs.microsoft.com/en-us/sql/tools/bcp-utility) command-line utility.
  
- An example of usage is:
+The syntax of the command line is:
+```
+azbcp <destination table> [IN] <source file pattern> <options>...
+```
+First parameter of azbcp command is a destination table where data will be loaded, followed by optional **IN** token. Then you need to specify source file name that can contain * wildcard, 
+and optional one or many options.
+
+> Note: **IN** keyword is optional and keept for backward-compatibility with standard bcp utility.
+> AzureBCP do not supports OUT option, so IN don't need to be added in command line.
+ 
+An example of usage is:
 
 ```
 azbcp Sales.SalesOrders IN *.csv -s dest.database.windows.net -d WideWorldImporters -u bulkuser -p bulkpassword -ENCRYPT -WORKERTHREADS 50 -ACCOUNT sourceaccount -CONTAINER srccontainer -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00Z&sig=rRJ%2BUbAWYIB2EllDZWhlM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
@@ -42,7 +52,7 @@ to the file where will be added the queries that failed to load files. You can r
 If you have placed connection information in the configuration file, you can load the files from Azure Blob Storage using the following command line: 
 
 ```
-azbcp Sales.SalesOrders IN orders/*.csv
+azbcp Sales.SalesOrders orders/*.csv
 ```
 This command will import files that match orders/*.csv pattern on blob storage into the Sales.SalesOrder table.
 
@@ -51,17 +61,17 @@ Since database connection information and credentials required to access Azure B
 If you have not placed the connection string in **Config.json**, you can put connection parameters in command-line like in [BCP](https://docs.microsoft.com/en-us/sql/tools/bcp-utility) command utility:
 
 ```
-azbcp Sales.Orders IN orders/*.cvs -s .\\SQLEXPRESS -d WideWorldImporters -T -ACCOUNT myblobstorage -CONTAINER myfiles -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00lM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
+azbcp Sales.Orders orders/*.cvs -s .\\SQLEXPRESS -d WideWorldImporters -T -ACCOUNT myblobstorage -CONTAINER myfiles -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00lM5bHSE%2BRNhQCw%2Fm446Gn1Bs%3D"
 ```
 
 You can specify additional parameters in command line to customize import command (such as first row, field/row terminator, etc.) Parameters match [BCP](https://docs.microsoft.com/en-us/sql/tools/bcp-utility) command utility.
 ```
-azbcp Sales.Orders IN orders/*.cvs -s -F 2 -t , -r 0x0a -h "TABLOCK"
+azbcp Sales.Orders orders/*.cvs -s -F 2 -t , -r 0x0a -h "TABLOCK"
 ```
 
 All possible command line options are shown in the following example:
 ```
-azbcp Sales.SalesOrder IN orders/*.csv -s "destination.database.windows.net" -d WWI -U "bulk-user" -P P4ssword -ENCRYPT -ACCOUNT sourceblob -CONTAINER mycontainer -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00Z&sig=rRJ%2BUbAWYIB2E%3D" -DOP 50 -QUERYLOG failed-queries.json -b 100000 -F 4 -r ; -t "|" -csv -FIELDQUOTE ' -C 86001 -c -m 100 -h "TABLOCK"
+azbcp Sales.SalesOrder orders/*.csv -s "destination.database.windows.net" -d WWI -U "bulk-user" -P P4ssword -ENCRYPT -ACCOUNT sourceblob -CONTAINER mycontainer -SAS "sv=2017-04-17&ss=b&srt=sco&sp=rl&st=2017-11-22T11%3A31%3A00Z&se=2017-12-25T11%3A31%3A00Z&sig=rRJ%2BUbAWYIB2E%3D" -DOP 50 -QUERYLOG failed-queries.json -b 100000 -F 4 -r ; -t "|" -csv -FIELDQUOTE ' -C 86001 -c -m 100 -h "TABLOCK"
 ```
 
 # Download

@@ -119,7 +119,16 @@ namespace AzureBCP
             {
                 Exit("You must specify source file(s) name in command.");
             }
-            Source = args[2];
+            var PARAM_POSITION = 3;
+            if (args[1] == "IN")
+            {
+                Source = args[2];
+            }
+            else
+            {
+                Source = args[1];
+                PARAM_POSITION = 2;
+            }
             var segments = Source.Split('/');
             if (segments.Length == 2)
             {
@@ -132,7 +141,7 @@ namespace AzureBCP
             }
             file = file.Replace(".", "\\.").Replace("*", "\\w+").Replace("_", "\\w");
 
-            for (int i = 3; i < args.Length; i++)
+            for (int i = PARAM_POSITION; i < args.Length; i++)
             {
                 switch (args[i])
                 {
