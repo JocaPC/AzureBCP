@@ -114,7 +114,7 @@ namespace AzureBCP
 
             if (args.Length == 0)
             {
-                Exit("You must specify table name in command.");
+                Exit("You must specify a table name in command.");
             }
             Table = args[0];
             if (args.Length < 2)
@@ -141,7 +141,6 @@ namespace AzureBCP
             {
                 file = Source;
             }
-            file = file.Replace(".", "\\.").Replace("*", "\\w+").Replace("_", "\\w");
 
             for (int i = PARAM_POSITION; i < args.Length; i++)
             {
@@ -344,6 +343,15 @@ namespace AzureBCP
                     Encrypt = Encrypt
                 };
                 config.ConnectionString = b.ConnectionString;
+            } else
+            {
+                if (string.IsNullOrEmpty(config.ConnectionString))
+                {
+                    Exit("Sql Server connection is not specified in -SERVER command-line option or \"ConnectionString\" property in Config.json file.");
+                }
+                var b = new SqlConnectionStringBuilder(config.ConnectionString);
+                Server = b.DataSource;
+                Database = b.InitialCatalog;
             }
             
             Account = Account ?? config.Account;
@@ -363,6 +371,101 @@ namespace AzureBCP
         }
 
         private static void GenerateBulkInsertCommandList(Configuration config, string sasToken, string accountName, string container, string directory, string pattern)
+        {
+            string credentialName = null;
+            if (StorageDataSource == null)
+            {
+                ValidateAzureStorageAccountParameters(ref sasToken, ref accountName, container);
+                credentialName = "BULK-LOAD-" + accountName + "-" + DateTime.Now.ToShortDateString();
+                ConfigureTempDataSource(config, sasToken, accountName, credentialName);
+            }
+            else
+            {
+                credentialName = StorageDataSource;
+            }
+
+            string[] list = null;
+            if (!string.IsNullOrEmpty(sasToken))
+            {
+                if (string.IsNullOrWhiteSpace(StorageDataSource))
+                {
+                    Exit("You need to specify either a Azure Blob Storage connection using -ACCOUNT, -SAS, and -CONTAINER command-line parameters or EXTERNAL DATA SOURCE name as -DATASOURCE command-line option.");
+                }
+                pattern = pattern.Replace(".", "\\.").Replace("*", "\\w+");
+
+                var sc = new StorageCredentials(sasToken);
+                CloudStorageAccount storageAccount = new CloudStorageAccount(sc, accountName, "core.windows.net", true);
+
+                var blobClient = storageAccount.CreateCloudBlobClient();
+                var srcContainer = blobClient.GetContainerReference(container);
+
+                list = srcContainer
+                    .ListBlobs(useFlatBlobListing: true, prefix: directory, blobListingDetails: BlobListingDetails.None)
+                    .Where(blob => (blob is CloudBlockBlob) && Regex.IsMatch((blob as CloudBlockBlob).Name, pattern))
+                    .Select(b => b.StorageUri.PrimaryUri.PathAndQuery.Trim("/".ToCharArray())).ToArray();
+            } else
+            {
+                if (pattern.Contains('*'))
+                {
+                    Exit("SAS token is not provided so you cannot specify pattern for input files. Please remove * from input file specification, and put a list of files with comma(,).");
+                }
+                list = pattern.Split(',');
+            }
+
+            if(list.Length < config.WorkerThreads)
+            {
+                Console.WriteLine("Number of worker threads decreased from {0} to {1}", config.WorkerThreads, list.Length);
+                config.WorkerThreads = (short)list.Length;
+            }
+
+            Console.WriteLine("Loading {0} files from {1} into {2} database on server {3}.\nPress [Y] to continue:", list.Length, !string.IsNullOrEmpty(sasToken) ? ("Storage account:" + accountName) : ("Storage datasource "+ StorageDataSource), Database, Server);
+            var confirmation = Console.ReadLine();
+            if (confirmation.ToUpper() == "Y")
+            {
+                GenerateBulkInsertCommand(config, list, credentialName);
+            } else
+            {
+                Exit("Cancelling operation.");
+            }
+        }
+
+        private static void ConfigureTempDataSource(Configuration config, string sasToken, string accountName, string credentialName)
+        {
+            config.Startup = new Query()
+            {
+                Text = $@"
+BEGIN TRY
+DROP EXTERNAL DATA SOURCE [{credentialName}] 
+DROP DATABASE SCOPED CREDENTIAL [{credentialName}]
+END TRY
+BEGIN CATCH
+	print @@ERROR
+END CATCH
+
+CREATE DATABASE SCOPED CREDENTIAL [{credentialName}] 
+    WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+    SECRET = '{sasToken}';
+
+CREATE EXTERNAL DATA SOURCE [{credentialName}]
+    WITH (	TYPE = BLOB_STORAGE, 
+		    LOCATION = 'https://{accountName}.blob.core.windows.net', 
+		    CREDENTIAL=  [{credentialName}]);"
+            };
+
+            config.Clenup = new Query()
+            {
+                Text = $@"
+BEGIN TRY
+    DROP EXTERNAL DATA SOURCE[{ credentialName }] 
+    DROP DATABASE SCOPED CREDENTIAL[{ credentialName }]
+END TRY
+BEGIN CATCH
+    print @@ERROR
+END CATCH"
+            };
+        }
+
+        private static void ValidateAzureStorageAccountParameters(ref string sasToken, ref string accountName, string container)
         {
             if (string.IsNullOrWhiteSpace(accountName))
             {
@@ -393,61 +496,9 @@ namespace AzureBCP
             {
                 sasToken = sasToken.Substring(1);
             }
-            
-            string credentialName = "BULK-LOAD-" + accountName + "-" + DateTime.Now.ToShortDateString();
-            if(StorageDataSource == null){
-
-                config.Startup = new Query()
-                {
-                    Text = $@"
-BEGIN TRY
-DROP EXTERNAL DATA SOURCE [{credentialName}] 
-DROP DATABASE SCOPED CREDENTIAL [{credentialName}]
-END TRY
-BEGIN CATCH
-	print @@ERROR
-END CATCH
-
-CREATE DATABASE SCOPED CREDENTIAL [{credentialName}] 
-    WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
-    SECRET = '{sasToken}';
-
-CREATE EXTERNAL DATA SOURCE [{credentialName}]
-    WITH (	TYPE = BLOB_STORAGE, 
-		    LOCATION = 'https://{accountName}.blob.core.windows.net', 
-		    CREDENTIAL=  [{credentialName}]);"
-                };
-
-                config.Clenup = new Query()
-                {
-                    Text = $@"
-BEGIN TRY
-    DROP EXTERNAL DATA SOURCE[{ credentialName }] 
-    DROP DATABASE SCOPED CREDENTIAL[{ credentialName }]
-END TRY
-BEGIN CATCH
-    print @@ERROR
-END CATCH"
-                };
-            } else
-            {
-                credentialName = StorageDataSource;
-            }
-            var sc = new StorageCredentials(sasToken);
-            CloudStorageAccount storageAccount = new CloudStorageAccount(sc, accountName, "core.windows.net", true);
-
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            var backupContainer = blobClient.GetContainerReference(container);
-
-            var list = backupContainer
-                .ListBlobs(useFlatBlobListing: true, prefix: directory, blobListingDetails: BlobListingDetails.None)
-                .Where(blob => (blob is CloudBlockBlob) && Regex.IsMatch((blob as CloudBlockBlob).Name, pattern))
-                .Select(  b => b.StorageUri.PrimaryUri.PathAndQuery.Trim("/".ToCharArray())).ToList();
-
-            GenerateBulkInsertCommand(config, list, credentialName);
         }
 
-        private static void GenerateBulkInsertCommand(Configuration config, List<string> list, string externalDataSourceName)
+        private static void GenerateBulkInsertCommand(Configuration config, string[] list, string externalDataSourceName)
         {
             List<Query> queries = new List<Query>();
             foreach (var file in list)
