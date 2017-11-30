@@ -244,6 +244,7 @@ namespace AzureBCP
                         break;
                     case "-c":
                     case "-char":
+                    case "-Char":
                     case "-CHAR":
                         BulkInsertOptions["DATAFILETYPE"] = "char";
                         break;
@@ -253,14 +254,13 @@ namespace AzureBCP
                     case "-NATIVE":
                         BulkInsertOptions["DATAFILETYPE"] = "native";
                         break;
-                    case "-w":
-                        wideDataType = true;
-                        break;
+                    case "-N":
                     case "-widenative":
                     case "-WideNative":
                     case "-WIDENATIVE":
                         BulkInsertOptions["DATAFILETYPE"] = "widenative";
                         break;
+                    case "-w":
                     case "-widechar":
                     case "-WideChar":
                     case "-WIDECHAR":
@@ -320,14 +320,6 @@ namespace AzureBCP
                         break;
                     default:
                         break;
-                }
-            }
-
-            if (wideDataType)
-            {
-                if(BulkInsertOptions["DATAFILETYPE"] == "native" || BulkInsertOptions["DATAFILETYPE"] == "char")
-                {
-                    BulkInsertOptions["DATAFILETYPE"] = "wide" + BulkInsertOptions["DATAFILETYPE"];
                 }
             }
 

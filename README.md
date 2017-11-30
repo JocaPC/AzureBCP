@@ -1,15 +1,15 @@
 # AZure Bulk CoPy Utility
 [AZure Bulk CoPy Utility](https://github.com/JocaPC/AzureBCP/tree/master/dist/) is a command-line tool that enables you to load a set of files from Azure Blob Storage into Azure SQL Database or SQL Server 2017.
 It uses Server-side load with [BULK INSERT T-SQL command](https://docs.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql) to load the files. Content of files is not downloaded to the computer where
-you are running the tool - SQL Database directly reads data from Azure Blob Storage). You can customize bulk insert process using the command line options similar to the well known
- [BCP](https://docs.microsoft.com/en-us/sql/tools/bcp-utility) command-line utility.
+you are running the tool - SQL Database directly reads data from Azure Blob Storage).
  
 The syntax of the command line is:
 ```
-azbcp <destination table> [IN] <source file pattern> <options>...
+azbcp <destination table> [IN] <source files> <options>...
 ```
-First parameter of azbcp command is a destination table where data will be loaded, followed by optional **IN** token. Then you need to specify source file name that can contain * wildcard, 
-and optional one or many options.
+First parameter of azbcp command is a destination table where data will be loaded, followed by optional **IN** token. Then you need to specify source file name(s) that will be loaded. You can use * wildcard to specify
+more than one file, or you can put a list of file names separated with comma ",". You can also add one or many options to customize bulk insert process using the command line options similar to the well known
+ [BCP](https://docs.microsoft.com/en-us/sql/tools/bcp-utility) command-line utility.
 
 > Note: **IN** keyword is optional and kept for backward-compatibility with standard bcp utility.
 > AzureBCP do not supports OUT option, so IN don't need to be added in command line.
