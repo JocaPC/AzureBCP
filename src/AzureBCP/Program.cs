@@ -444,7 +444,7 @@ CREATE EXTERNAL DATA SOURCE [{credentialName}]
 		    CREDENTIAL=  [{credentialName}]);"
             };
 
-            config.Clenup = new Query()
+            config.Cleanup = new Query()
             {
                 Text = $@"
 BEGIN TRY

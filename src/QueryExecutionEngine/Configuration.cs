@@ -29,7 +29,7 @@ namespace QueryExecutionEngine
         public Set[] Domains;
         public Query[] Queries;
         public Query Startup;
-        public Query Clenup;
+        public Query Cleanup;
         public string[] QueryList;
         public string FailedQueriesLog;
 
@@ -53,11 +53,11 @@ namespace QueryExecutionEngine
                 }
             }
 
-            if (config.Clenup != null && config.Clenup.File != null)
+            if (config.Cleanup != null && config.Cleanup.File != null)
             {
-                if (string.IsNullOrWhiteSpace(config.Clenup.Text))
+                if (string.IsNullOrWhiteSpace(config.Cleanup.Text))
                 {
-                    config.Clenup.Text = File.ReadAllText(config.Clenup.File);
+                    config.Cleanup.Text = File.ReadAllText(config.Cleanup.File);
                 }
                 else
                 {

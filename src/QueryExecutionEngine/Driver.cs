@@ -139,7 +139,7 @@ namespace QueryExecutionEngine
 
             lock (queryLock)
             {
-                ExecuteQuery(iteration, config.Clenup);
+                ExecuteQuery(iteration, config.Cleanup);
                 var handler = WorkloadEnd;
                 if (handler != null)
                 {
