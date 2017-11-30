@@ -387,10 +387,6 @@ namespace AzureBCP
             string[] list = null;
             if (!string.IsNullOrEmpty(sasToken))
             {
-                if (string.IsNullOrWhiteSpace(StorageDataSource))
-                {
-                    Exit("You need to specify either a Azure Blob Storage connection using -ACCOUNT, -SAS, and -CONTAINER command-line parameters or EXTERNAL DATA SOURCE name as -DATASOURCE command-line option.");
-                }
                 pattern = pattern.Replace(".", "\\.").Replace("*", "\\w+");
 
                 var sc = new StorageCredentials(sasToken);
@@ -405,6 +401,10 @@ namespace AzureBCP
                     .Select(b => b.StorageUri.PrimaryUri.PathAndQuery.Trim("/".ToCharArray())).ToArray();
             } else
             {
+                if (string.IsNullOrWhiteSpace(StorageDataSource))
+                {
+                    Exit("You need to specify either a Azure Blob Storage connection using -ACCOUNT, -SAS, and -CONTAINER command-line parameters or EXTERNAL DATA SOURCE name as -DATASOURCE command-line option.");
+                }
                 if (pattern.Contains('*'))
                 {
                     Exit("SAS token is not provided so you cannot specify pattern for input files. Please remove * from input file specification, and put a list of files with comma(,).");
